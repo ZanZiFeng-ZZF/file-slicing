@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <canvas id="camera-shot-canvas"></canvas>
+  <video id="camera-shot-video"></video>
+  <button onclick="shot">拍照</button>
+</body>
+<script>
+  const cameraDevices = []
+  navigator.mediaDevices.enumerateDevices().then(deviceInfos => {
+    for (const deviceInfo of deviceInfos) {
+      if (deviceInfo.kind === 'videoinput') {
+        cameraDevices.push({
+          deviceId: deviceInfo.deviceId,          // 摄像头的设备ID
+          label: deviceInfo.label || 'camera',    // 摄像头的设备名称
+        })
+      }
+    }
+  })// 兼容不同浏览器版本的getUserMedia
+  function getUserMedia(constrains, success, error) {
+    if (navigator.mediaDevices.getUserMedia) {
+      //最新标准API
+      navigator.mediaDevices.getUserMedia(constrains).then(success).catch(error);
+    } else if (navigator.webkitGetUserMedia) {
+      //webkit内核浏览器
+      navigator.webkitGetUserMedia(constrains).then(success).catch(error);
+    } else if (navigator.mozGetUserMedia) {
+      //Firefox浏览器
+      navagator.mozGetUserMedia(constrains).then(success).catch(error);
+    } else if (navigator.getUserMedia) {
+      //旧版API
+      navigator.getUserMedia(constrains).then(success).catch(error);
+    }
+  }
+
+  const videoDom = document.querySelector('#camera-shot-video')
+  getUserMedia({
+    // video可直接传true，deviceId没传参数则使用默认的
+    video: {
+      width: 500,
+      height: 500,
+      deviceId: cameraDevices.length && cameraDevices[0].deviceId ? { exact: cameraDevices[0].deviceId } : undefined
+    },
+    audio: false,
+  }, stream => {
+    // 播放视频流(兼容旧版video src)
+    if ("srcObject" in videoDom) {
+      videoDom.srcObject = stream
+    } else {
+      videoDom.src = window.URL.createObjectURL(stream)
+    }
+    videoDom.onloadedmetadata = function (e) {
+      videoDom.play()
+    }
+  }, err => {
+    console.log(err);
+    that.$message.error('摄像头开启失败！')
+  })
+  const canvasDom = document.querySelector('#camera-shot-canvas')
+  function shot() {
+    canvasDom.getContext('2d').drawImage(
+      videoDom,
+      0,
+      0,
+      500,
+      500
+    )
+  }
+</script>
+
+</html>

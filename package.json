@@ -1,0 +1,21 @@
+{
+  "name": "qiepian",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    
+    "multiparty": "^4.2.3"
+  },
+  "devDependencies": {
+    
+    "@types/multiparty": "^0.0.33",
+    "@types/node": "^18.15.11"
+  }
+}
